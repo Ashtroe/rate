@@ -126,7 +126,7 @@ return (
           />
         ))}
     </SimpleGrid>
-    {movies.length &&
+    {/* {movies.length &&
       mode === "movie" &&
       movies.map((movie) => (
         <Button
@@ -136,7 +136,7 @@ return (
         >
           {movie.title}
         </Button>
-      ))}
+      ))} */}
   </Box>
 )
     }

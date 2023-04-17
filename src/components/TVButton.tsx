@@ -17,19 +17,22 @@ export function TVButton(props: TVProps) {
         justifyContent: "center"
       }}
     >
-      <Image src={props.image} />
+      <Image
+        key={props.name.replace(/\s/g, "").replace(/:/g, "")+"img"}
+        src={props.image}
+      />
       <Button
         onClick={() => props.onClick()}
         isDisabled={props.isSaved}
         style={{
           position: "absolute",
           bottom: 10,
-          width:'90%',
+          width: "90%",
           alignSelf: "center",
-          margin:0
+          margin: 0
         }}
       >
-        {props.isSaved ? 'Added' : 'Add'}
+        {props.isSaved ? "Added" : "Add"}
       </Button>
     </Box>
   )
