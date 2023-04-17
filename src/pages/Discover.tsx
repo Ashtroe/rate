@@ -111,13 +111,12 @@ return (
     <Button onClick={() => setMode("movie")} isActive={mode === "movie"}>
       Movies
     </Button>
-    <SimpleGrid
-      columns={10}
-    >
+    <SimpleGrid columns={10}>
       {tv.length &&
         mode === "tv" &&
-        tv.map((tv) => (
+        tv.map((tv,i) => (
           <TVButton
+            key={i}
             name={tv.name}
             isHidden={false}
             isSaved={userShows.some((item) => item.name === tv.name)}

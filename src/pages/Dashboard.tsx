@@ -177,7 +177,7 @@ interface IShow {
           backgroundColor={"blackAlpha.200"}
           style={{
             paddingLeft: 30,
-            paddingBottom: 30,
+            paddingBottom: 30
           }}
         >
           <Center>
@@ -187,8 +187,9 @@ interface IShow {
           <Heading>In your Library</Heading>
           <Flex gap={5}>
             {mode === "Movies"
-              ? userMovies.map((movie: IMovie) => (
+              ? userMovies.map((movie: IMovie, i) => (
                   <TVButton
+                    key={i}
                     name={movie.title}
                     isHidden={false}
                     isSaved={userMovies.some(
@@ -200,8 +201,9 @@ interface IShow {
                 ))
               : null}
             {mode === "Shows"
-              ? userShows.map((show: IShow) => (
+              ? userShows.map((show: IShow, i) => (
                   <TVButton
+                    key={i}
                     name={show.name}
                     isHidden={false}
                     isSaved={userShows.some((item) => item.name === show.name)}
@@ -214,12 +216,14 @@ interface IShow {
           {/* Trending */}
           <Heading
             style={{
-              marginTop:20,
-              paddingTop:10,
-              borderTopWidth:1,
-              borderTopColor:''
+              marginTop: 20,
+              paddingTop: 10,
+              borderTopWidth: 1,
+              borderTopColor: ""
             }}
-          >What's Trending this week</Heading>
+          >
+            What's Trending this week
+          </Heading>
         </GridItem>
       </Grid>
     </Box>
