@@ -10,21 +10,20 @@ import {
   Stack,
   Text
 } from "@chakra-ui/react"
+import firebase from 'firebase/compat/app'
+import "Firebase/compat/auth"
+import 'Firebase/compat/database'
 import { useRouter } from "next/router"
 import React, { useState } from "react"
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  setPersistence,
-  browserSessionPersistence
-} from "Firebase/auth"
-import { auth, database } from "./../utils/firebaseConfig"
-import { set, ref } from 'Firebase/database'
+import { auth as getauth, database } from "./../utils/firebaseConfig"
 import styles from "@/styles/Landing.module.css"
+import { Database, set } from "Firebase/database"
 
 type Props = {}
 
+const auth = firebase.auth()
 function LoginSignup({}: Props) {
+
   const router = useRouter()
 
   const [username, setUsername] = useState("")
@@ -33,14 +32,14 @@ function LoginSignup({}: Props) {
   const [showSignup, setShowSignup] = useState(false)
 
   const handleSignup = () => {
-    createUserWithEmailAndPassword(auth, username, password)
+    auth.createUserWithEmailAndPassword(username, password)
       .then((cred) => {
         const userInfo = cred.user
         set(ref(database,`users/${auth.currentUser?.uid}`),{
-          uid: userInfo.uid,
-          email: userInfo.email,
-          displayName: userInfo.displayName,
-          created: userInfo.metadata.creationTime,
+          uid: userInfo?.uid,
+          email: userInfo?.email,
+          displayName: userInfo?.displayName,
+          created: userInfo?.metadata.creationTime,
         })
         
       })
@@ -54,9 +53,7 @@ function LoginSignup({}: Props) {
   }
   const handleSignIn = () => {
     
-    setPersistence(auth, browserSessionPersistence)
-      .then(() => {
-        signInWithEmailAndPassword(auth, username, password)
+    auth.signInWithEmailAndPassword(username, password)
           .then((res) => {
             if (res.user) {
               setUsername("")
@@ -68,10 +65,7 @@ function LoginSignup({}: Props) {
             console.log(err)
             router.reload()
           })
-      })
-      .catch((err) => {
-        console.log(err)
-      })
+      
   }
   // if (showLogin) {
   //   return (
@@ -161,4 +155,8 @@ function LoginSignup({}: Props) {
 }
 
 export default LoginSignup
+
+function ref(database: Database, arg1: string): import("@firebase/database-types").Reference {
+  throw new Error("Function not implemented.")
+}
 
