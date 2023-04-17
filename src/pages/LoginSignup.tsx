@@ -29,7 +29,7 @@ function LoginSignup({}: Props) {
   const [showSignup, setShowSignup] = useState(false)
 
   const handleSignup = () => {
-    auth.createUserWithEmailAndPassword(username, password)
+    firebase.auth().createUserWithEmailAndPassword(username, password)
       .then((cred) => {
         const userInfo = cred.user
         firebase.database().ref(`users/${auth.currentUser?.uid}`).
@@ -51,7 +51,7 @@ function LoginSignup({}: Props) {
   }
   const handleSignIn = () => {
     
-    auth.signInWithEmailAndPassword(username, password)
+    firebase.auth().signInWithEmailAndPassword(username, password)
           .then((res) => {
             if (res.user) {
               setUsername("")
