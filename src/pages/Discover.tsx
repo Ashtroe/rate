@@ -18,7 +18,7 @@ import {
     Flex,
     SimpleGrid,
 } from '@chakra-ui/react'
-import { auth, database } from '@/utils/firebaseConfig'
+import { app } from '@/utils/firebaseConfig'
 import firebase from "firebase/compat/app"
 import { useRouter } from 'next/router'
 import { TVButton } from '@/components/TVButton'
@@ -47,14 +47,14 @@ function Discover({ }: Props) {
   const [loading, setLoading] = useState(false)
 
   const addMovieToUser = (movie: Movie) => {
-    const currentUserRef = firebase.database().ref(`users/${auth.currentUser?.uid}`)
+    const currentUserRef = firebase.database().ref(`users/${app.auth().currentUser?.uid}`)
     currentUserRef.update({ userMovies: [...userMovies, movie] })
     setUserMovies([...userMovies, movie])
   }
   const addShowToUser = (show: TV) => {
     const currentUserRef = firebase
       .database()
-      .ref(`users/${auth.currentUser?.uid}`)
+      .ref(`users/${app.auth().currentUser?.uid}`)
 
     currentUserRef.update({ userShows: [...userShows, show] })
     setUserShows([...userShows, show])
@@ -70,10 +70,10 @@ function Discover({ }: Props) {
 
   //   Get Users current Library
   useEffect(() => {
-    if (auth.currentUser?.uid) {
+    if (app.auth().currentUser?.uid) {
       firebase
         .database()
-        .ref(`users/${auth.currentUser?.uid}`)
+        .ref(`users/${app.auth().currentUser?.uid}`)
         .get()
         .then((snapshot) => {
           setUserMovies(snapshot.val().userMovies)

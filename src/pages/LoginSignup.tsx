@@ -13,7 +13,7 @@ import {
 import firebase from 'firebase/compat/app'
 import { useRouter } from "next/router"
 import React, { useState } from "react"
-import { database } from "./../utils/firebaseConfig"
+import { app } from "./../utils/firebaseConfig"
 import styles from "@/styles/Landing.module.css"
 
 type Props = {}
