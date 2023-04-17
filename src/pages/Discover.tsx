@@ -20,8 +20,6 @@ import {
 } from '@chakra-ui/react'
 import { auth, database } from '@/utils/firebaseConfig'
 import firebase from "firebase/compat/app"
-import "Firebase/compat/auth"
-import "Firebase/compat/database"
 import { useRouter } from 'next/router'
 import { TVButton } from '@/components/TVButton'
 

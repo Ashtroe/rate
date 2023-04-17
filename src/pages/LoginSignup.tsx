@@ -11,8 +11,6 @@ import {
   Text
 } from "@chakra-ui/react"
 import firebase from 'firebase/compat/app'
-import "Firebase/compat/auth"
-import 'Firebase/compat/database'
 import { useRouter } from "next/router"
 import React, { useState } from "react"
 import { database } from "./../utils/firebaseConfig"

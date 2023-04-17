@@ -22,8 +22,6 @@ import {
 } from "@chakra-ui/react"
 import Link from 'next/link'
 import firebase from "firebase/compat/app"
-import "Firebase/compat/auth"
-import "Firebase/compat/database"
 import { useRouter } from 'next/router'
 import React , { useEffect, useRef, useState  } from 'react'
 import { TVButton } from '@/components/TVButton'
