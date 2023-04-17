@@ -1,4 +1,4 @@
-import { auth, database } from '@/utils/firebaseConfig'
+import { app } from '@/utils/firebaseConfig'
 import {
   Box,
   Button,
@@ -42,7 +42,7 @@ export default function Dashboard({}: Props) {
   const [userMovies, setUserMovies] = useState<IMovie[]>([])
   const [userShows, setUserShows] = useState<IShow[]>([])
   useEffect(() => {
-    !auth.currentUser ? router.replace("/LoginSignup") : null
+    !firebase.auth().currentUser ? router.replace("/LoginSignup") : null
   }, [])
 interface IMovie {
   title: string
@@ -68,8 +68,8 @@ interface IShow {
 
   //   Get Users current Library
   useEffect(() => {
-    if (auth.currentUser?.uid) {
-      firebase.database().ref(`users/${auth.currentUser?.uid}`)
+    if (firebase.auth().currentUser?.uid) {
+      firebase.database().ref(`users/${firebase.auth().currentUser?.uid}`)
       .get()
       .then(
         (snapshot) => {
