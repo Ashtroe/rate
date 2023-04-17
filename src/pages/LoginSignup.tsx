@@ -15,9 +15,8 @@ import "Firebase/compat/auth"
 import 'Firebase/compat/database'
 import { useRouter } from "next/router"
 import React, { useState } from "react"
-import { auth as getauth, database } from "./../utils/firebaseConfig"
+import { database } from "./../utils/firebaseConfig"
 import styles from "@/styles/Landing.module.css"
-import { Database, set } from "Firebase/database"
 
 type Props = {}
 
@@ -35,7 +34,8 @@ function LoginSignup({}: Props) {
     auth.createUserWithEmailAndPassword(username, password)
       .then((cred) => {
         const userInfo = cred.user
-        set(ref(database,`users/${auth.currentUser?.uid}`),{
+        firebase.database().ref(`users/${auth.currentUser?.uid}`).
+        set({
           uid: userInfo?.uid,
           email: userInfo?.email,
           displayName: userInfo?.displayName,
