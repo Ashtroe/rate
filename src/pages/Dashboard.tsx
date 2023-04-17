@@ -219,7 +219,6 @@ interface IShow {
               marginTop: 20,
               paddingTop: 10,
               borderTopWidth: 1,
-              borderTopColor: ""
             }}
           >
             What's Trending this week
