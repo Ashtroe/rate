@@ -18,7 +18,6 @@ import styles from "@/styles/Landing.module.css"
 
 type Props = {}
 
-const auth = firebase.auth()
 function LoginSignup({}: Props) {
 
   const router = useRouter()
@@ -29,10 +28,10 @@ function LoginSignup({}: Props) {
   const [showSignup, setShowSignup] = useState(false)
 
   const handleSignup = () => {
-    app.auth().createUserWithEmailAndPassword(username, password)
+    firebase.auth().createUserWithEmailAndPassword(username, password)
       .then((cred) => {
         const userInfo = cred.user
-        firebase.database().ref(`users/${auth.currentUser?.uid}`).
+        firebase.database().ref(`users/${firebase.auth().currentUser?.uid}`).
         set({
           uid: userInfo?.uid,
           email: userInfo?.email,
@@ -51,7 +50,7 @@ function LoginSignup({}: Props) {
   }
   const handleSignIn = () => {
     
-    app.auth().signInWithEmailAndPassword(username, password)
+    firebase.auth().signInWithEmailAndPassword(username, password)
           .then((res) => {
             if (res.user) {
               setUsername("")
