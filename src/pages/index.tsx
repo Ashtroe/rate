@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { Box, Button, Input, Text } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
-import { auth } from '@/utils/firebaseConfig'
+import { app } from '@/utils/firebaseConfig'
 
 
 
@@ -20,7 +20,7 @@ const [userInfo, setUserInfo] = useState<User | undefined>()
 
 
 useEffect(() => {
-  !auth.currentUser ? router.replace('/LoginSignup') : null
+  !app.auth().currentUser ? router.replace('/LoginSignup') : null
   
 }, [])
 
