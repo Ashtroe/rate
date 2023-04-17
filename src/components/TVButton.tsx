@@ -18,8 +18,9 @@ export function TVButton(props: TVProps) {
       }}
     >
       <Image
-        key={props.name.replace(/\s/g, "").replace(/:/g, "")+"img"}
+        key={props.name.replace(/\s/g, "").replace(/:/g, "") + "img"}
         src={props.image}
+        alt={props.name.replace(/\s/g, "").replace(/:/g, "")}
       />
       <Button
         onClick={() => props.onClick()}

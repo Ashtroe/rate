@@ -121,7 +121,7 @@ function LoginSignup({}: Props) {
   }
   return (
     <div className={styles.landingContainer}>
-      <Image src="" className={styles.landingBackground} />
+      <Image src="" alt="" className={styles.landingBackground} />
       <Text>Welcome to Rate</Text>
       <Stack marginTop={"20%"} width={400}>
         <Button onClick={() => setShowSignup(true)}>signup</Button>

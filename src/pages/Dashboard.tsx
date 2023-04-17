@@ -221,7 +221,7 @@ interface IShow {
               borderTopWidth: 1,
             }}
           >
-            What's Trending this week
+           {" What's Trending this week"}
           </Heading>
         </GridItem>
       </Grid>
