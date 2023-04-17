@@ -18,7 +18,7 @@ import {
   setPersistence,
   browserSessionPersistence
 } from "Firebase/auth"
-import { app, auth, database } from "./../utils/firebaseConfig"
+import { auth, database } from "./../utils/firebaseConfig"
 import { set, ref } from 'Firebase/database'
 import styles from "@/styles/Landing.module.css"
 
