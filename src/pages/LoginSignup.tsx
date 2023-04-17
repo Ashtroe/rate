@@ -156,7 +156,3 @@ function LoginSignup({}: Props) {
 
 export default LoginSignup
 
-function ref(database: Database, arg1: string): import("@firebase/database-types").Reference {
-  throw new Error("Function not implemented.")
-}
-
