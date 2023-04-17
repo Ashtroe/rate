@@ -21,7 +21,9 @@ import {
   Divider
 } from "@chakra-ui/react"
 import Link from 'next/link'
-import { set, ref, child, get, update } from "@firebase/database"
+import firebase from "firebase/compat/app"
+import "Firebase/compat/auth"
+import "Firebase/compat/database"
 import { useRouter } from 'next/router'
 import React , { useEffect, useRef, useState  } from 'react'
 import { TVButton } from '@/components/TVButton'
@@ -69,7 +71,9 @@ interface IShow {
   //   Get Users current Library
   useEffect(() => {
     if (auth.currentUser?.uid) {
-      get(child(ref(database), `users/${auth.currentUser!.uid}`)).then(
+      firebase.database().ref(`users/${auth.currentUser?.uid}`)
+      .get()
+      .then(
         (snapshot) => {
           setUserMovies(snapshot.val().userMovies)
           setUserShows(snapshot.val().userShows)
