@@ -19,7 +19,9 @@ import {
     SimpleGrid,
 } from '@chakra-ui/react'
 import { auth, database } from '@/utils/firebaseConfig'
-import { set, ref, child, get, update} from '@firebase/database'
+import firebase from "firebase/compat/app"
+import "Firebase/compat/auth"
+import "Firebase/compat/database"
 import { useRouter } from 'next/router'
 import { TVButton } from '@/components/TVButton'
 
@@ -39,93 +41,90 @@ interface TV {
   }
 
 function Discover({ }: Props) {
+  const [movies, setMovies] = useState<Movie[]>([])
+  const [userMovies, setUserMovies] = useState<Movie[]>([])
+  const [userShows, setUserShows] = useState<TV[]>([])
+  const [tv, setTv] = useState<TV[]>([])
+  const [mode, setMode] = useState<"movie" | "tv">("tv")
+  const [loading, setLoading] = useState(false)
 
-    const [movies, setMovies] = useState<Movie[]>([])
-    const [userMovies, setUserMovies] = useState<Movie[]>([])
-    const [userShows, setUserShows] = useState<TV[]>([])
-    const [tv, setTv] = useState<TV[]>([])
-    const [mode, setMode] = useState<'movie'| 'tv'>('tv')
-    const [loading, setLoading ] = useState(false)
+  const addMovieToUser = (movie: Movie) => {
+    const currentUserRef = firebase.database().ref(`users/${auth.currentUser?.uid}`)
+    currentUserRef.update({ userMovies: [...userMovies, movie] })
+    setUserMovies([...userMovies, movie])
+  }
+  const addShowToUser = (show: TV) => {
+    const currentUserRef = firebase
+      .database()
+      .ref(`users/${auth.currentUser?.uid}`)
 
-    const router = useRouter()
+    currentUserRef.update({ userShows: [...userShows, show] })
+    setUserShows([...userShows, show])
+  }
 
-    
-    const userDatabaseRef = ref(database, `users/`)
+  useEffect(() => {
+    fetch(`https:api.themoviedb.org/3/trending/movie/week?api_key=${MDBKey}`)
+      .then((res) => res.json())
+      .then((res) => {
+        setMovies(res.results)
+      })
+  }, [])
 
-    const addMovieToUser = ( movie: Movie) => {
-        const currentUserRef = ref(database, `users/${auth.currentUser?.uid}`)
-        update(currentUserRef, { userMovies: [...userMovies, movie] })
-        setUserMovies([...userMovies, movie])
+  //   Get Users current Library
+  useEffect(() => {
+    if (auth.currentUser?.uid) {
+      firebase
+        .database()
+        .ref(`users/${auth.currentUser?.uid}`)
+        .get()
+        .then((snapshot) => {
+          setUserMovies(snapshot.val().userMovies)
+          setUserShows(snapshot.val().userShows)
+        })
     }
-    const addShowToUser = ( show: TV) => {
-        const currentUserRef = ref(database, `users/${auth.currentUser?.uid}`)
-        
-        update(currentUserRef, { userShows: [...userShows, show] })
-        setUserShows([...userShows, show])
-    }
+  }, [])
 
-    useEffect(() => {
-        fetch(`https:api.themoviedb.org/3/trending/movie/week?api_key=${MDBKey}`)
-          .then(res=>res.json())
-          .then(res => {
-              setMovies(res.results)
-            }
-          )
-      }, [])
+  useEffect(() => {
+    fetch(`https:api.themoviedb.org/3//trending/tv/week?api_key=${MDBKey}`)
+      .then((res) => res.json())
+      .then((res) => {
+        setTv(res.results)
+      })
+  }, [])
 
-    //   Get Users current movies
-    useEffect(() => {
-        if(auth.currentUser?.uid){
-            get(child(ref(database),`users/${auth.currentUser!.uid}`))
-                .then(snapshot => {
-                    setUserMovies(snapshot.val().userMovies);  
-                    setUserShows(snapshot.val().userShows)
-                })
-        }
-      }, [])
+  interface UserData {
+    uid: number
+    username: string
+    email: string
+    private?: boolean
+  }
 
-    useEffect(() => {
-        fetch(`https:api.themoviedb.org/3//trending/tv/week?api_key=${MDBKey}`)
-          .then(res=>res.json())
-          .then(res => {
-              setTv(res.results)
-            }
-          )
-      }, [])
-
-      interface UserData {
-        uid: number,
-        username: string,
-        email: string,
-        private?: boolean,
-      }
-
-    if(loading){
-        return <Spinner/>
-    }else{
-return (
-  <Box>
-    <Button onClick={() => setMode("tv")} isActive={mode === "tv"}>
-      TV
-    </Button>
-    <Button onClick={() => setMode("movie")} isActive={mode === "movie"}>
-      Movies
-    </Button>
-    <SimpleGrid columns={10}>
-      {tv.length &&
-        mode === "tv" &&
-        tv.map((tv,i) => (
-          <TVButton
-            key={i}
-            name={tv.name}
-            isHidden={false}
-            isSaved={userShows.some((item) => item.name === tv.name)}
-            image={`http://image.tmdb.org/t/p/w500/${tv.poster_path}`}
-            onClick={() => addShowToUser(tv)}
-          />
-        ))}
-    </SimpleGrid>
-    {/* {movies.length &&
+  if (loading) {
+    return <Spinner />
+  } else {
+    return (
+      <Box>
+        <Button onClick={() => setMode("tv")} isActive={mode === "tv"}>
+          TV
+        </Button>
+        <Button onClick={() => setMode("movie")} isActive={mode === "movie"}>
+          Movies
+        </Button>
+        <SimpleGrid columns={10}>
+          {tv.length &&
+            mode === "tv" &&
+            tv.map((tv, i) => (
+              <TVButton
+                key={i}
+                name={tv.name}
+                isHidden={false}
+                isSaved={userShows.some((item) => item.name === tv.name)}
+                image={`http://image.tmdb.org/t/p/w500/${tv.poster_path}`}
+                onClick={() => addShowToUser(tv)}
+              />
+            ))}
+        </SimpleGrid>
+        {/* {movies.length &&
       mode === "movie" &&
       movies.map((movie) => (
         <Button
@@ -136,10 +135,9 @@ return (
           {movie.title}
         </Button>
       ))} */}
-  </Box>
-)
-    }
-    
+      </Box>
+    )
+  }
 }
 
 
