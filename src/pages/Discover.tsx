@@ -21,7 +21,7 @@ import {
 import { auth } from '@/utils/firebaseConfig'
 import firebase from "firebase/compat/app"
 import { TVButton } from '@/components/TVButton'
-import { getDatabase, ref, set, get, onValue, update } from "Firebase/database"
+import { getDatabase, ref, set, get, onValue, update } from "firebase/database"
 import { child } from "@firebase/database"
 import { fetchFromUrl } from '@/utils/apiCalls'
 

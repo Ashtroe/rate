@@ -24,7 +24,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React , { useEffect, useRef, useState  } from 'react'
 import { TVButton } from '@/components/TVButton'
-import { getDatabase, ref, set, get, onValue } from 'Firebase/database'
+import { getDatabase, ref, set, get, onValue } from 'firebase/database'
 import { child } from '@firebase/database'
 
 const MDBKey = process.env.MBKey

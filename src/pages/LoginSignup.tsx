@@ -12,7 +12,7 @@ import {
 } from "@chakra-ui/react"
 import firebase from 'firebase/compat/app'
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "Firebase/auth"
-import { set, ref, getDatabase } from 'Firebase/database'
+import { set, ref, getDatabase } from 'firebase/database'
 import { useRouter } from "next/router"
 import React, { useState } from "react"
 import styles from "@/styles/Landing.module.css"
