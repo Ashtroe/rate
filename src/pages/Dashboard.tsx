@@ -1,4 +1,4 @@
-import { app } from '@/utils/firebaseConfig'
+import { auth } from '@/utils/firebaseConfig'
 import {
   Box,
   Button,
@@ -21,10 +21,11 @@ import {
   Divider
 } from "@chakra-ui/react"
 import Link from 'next/link'
-import firebase from "firebase/compat/app"
 import { useRouter } from 'next/router'
 import React , { useEffect, useRef, useState  } from 'react'
 import { TVButton } from '@/components/TVButton'
+import { getDatabase, ref, set, get, onValue } from 'Firebase/database'
+import { child } from '@firebase/database'
 
 const MDBKey = process.env.MBKey
 
@@ -34,6 +35,9 @@ type Props = {
 }
 
 export default function Dashboard({}: Props) {
+
+  const database = getDatabase()
+
   const { isOpen, onOpen, onClose } = useDisclosure()
   const btnRef = useRef()
   const router = useRouter()
@@ -42,7 +46,7 @@ export default function Dashboard({}: Props) {
   const [userMovies, setUserMovies] = useState<IMovie[]>([])
   const [userShows, setUserShows] = useState<IShow[]>([])
   useEffect(() => {
-    !firebase.auth().currentUser ? router.replace("/LoginSignup") : null
+    auth.currentUser ? router.replace("/LoginSignup") : null
   }, [])
 interface IMovie {
   title: string
@@ -59,7 +63,9 @@ interface IShow {
 }
   useEffect(() => {
     
-    fetch(`https:api.themoviedb.org/3/trending/movie/week?api_key=${MDBKey}`)
+    fetch(
+      `https:api.themoviedb.org/3/trending/movie/week?api_key=b5b1d482c5c54d863ce51dcc2de0b0b9`
+    )
       .then((res) => res.json())
       .then((res) => {
         setMovies(res.results)
@@ -68,20 +74,23 @@ interface IShow {
 
   //   Get Users current Library
   useEffect(() => {
-    if (firebase.auth().currentUser?.uid) {
-      firebase.database().ref(`users/${firebase.auth().currentUser?.uid}`)
-      .get()
-      .then(
-        (snapshot) => {
-          setUserMovies(snapshot.val().userMovies)
-          setUserShows(snapshot.val().userShows)
-        }
+    if (auth.currentUser?.uid) {
+    const dbRef = ref(database)
+    get(child(dbRef, `users/${auth.currentUser.uid}`))
+      .then((snap) =>{
+        setUserMovies(snap.val().userMovies)
+        setUserShows(snap.val().userShows)
+      }
       )
+    
+    
     }
   }, [])
 
   useEffect(() => {
-    fetch(`https:api.themoviedb.org/3//trending/tv/week?api_key=${MDBKey}`)
+    fetch(
+      `https:api.themoviedb.org/3//trending/tv/week?api_key=b5b1d482c5c54d863ce51dcc2de0b0b9`
+    )
       .then((res) => res.json())
       .then((res) => {
         setUserShows(res.results)

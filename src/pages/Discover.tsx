@@ -18,12 +18,14 @@ import {
     Flex,
     SimpleGrid,
 } from '@chakra-ui/react'
-import { app } from '@/utils/firebaseConfig'
+import { auth } from '@/utils/firebaseConfig'
 import firebase from "firebase/compat/app"
-import { useRouter } from 'next/router'
 import { TVButton } from '@/components/TVButton'
+import { getDatabase, ref, set, get, onValue, update } from "Firebase/database"
+import { child } from "@firebase/database"
+import { fetchFromUrl } from '@/utils/apiCalls'
 
-const MDBKey = process.env.MBKey
+const MDBKey = process.env.NEXT_PUBLIC_MDB_KEY
 type Props = {}
 
 
@@ -32,6 +34,7 @@ interface Movie {
     desc: string,
   }[]
 interface TV {
+    id:number,
     name: string,
     desc: string,
     rating: string,
@@ -42,52 +45,45 @@ function Discover({ }: Props) {
   const [movies, setMovies] = useState<Movie[]>([])
   const [userMovies, setUserMovies] = useState<Movie[]>([])
   const [userShows, setUserShows] = useState<TV[]>([])
-  const [tv, setTv] = useState<TV[]>([])
+  const [shows, setShows] = useState<TV[]>([])
   const [mode, setMode] = useState<"movie" | "tv">("tv")
   const [loading, setLoading] = useState(false)
 
+  const database = getDatabase()
+  const dbRef = ref(database)
+
   const addMovieToUser = (movie: Movie) => {
-    const currentUserRef = firebase.database().ref(`users/${app.auth().currentUser?.uid}`)
-    currentUserRef.update({ userMovies: [...userMovies, movie] })
+    update(child(dbRef, `users/${auth.currentUser?.uid}`), {
+      userMovies: [...userMovies, movie]
+    })
     setUserMovies([...userMovies, movie])
   }
   const addShowToUser = (show: TV) => {
-    const currentUserRef = firebase
-      .database()
-      .ref(`users/${app.auth().currentUser?.uid}`)
-
-    currentUserRef.update({ userShows: [...userShows, show] })
+    update(child(dbRef, `/users/${auth.currentUser?.uid}`), {
+      userShows: [...userShows, show]
+    }).then((res) => console.log(res))
     setUserShows([...userShows, show])
   }
-
-  useEffect(() => {
-    fetch(`https:api.themoviedb.org/3/trending/movie/week?api_key=${MDBKey}`)
-      .then((res) => res.json())
-      .then((res) => {
-        setMovies(res.results)
-      })
-  }, [])
-
   //   Get Users current Library
   useEffect(() => {
-    if (app.auth().currentUser?.uid) {
-      firebase
-        .database()
-        .ref(`users/${app.auth().currentUser?.uid}`)
-        .get()
-        .then((snapshot) => {
-          setUserMovies(snapshot.val().userMovies)
-          setUserShows(snapshot.val().userShows)
-        })
+    if (auth.currentUser?.uid) {
+      const dbRef = ref(database)
+      get(child(dbRef, `users/${auth.currentUser.uid}`)).then((snap) => {
+        setUserMovies(snap.val().userMovies)
+        setUserShows(snap.val().userShows)
+      })
     }
   }, [])
-
+  // Get Trending Movies for the current week
   useEffect(() => {
-    fetch(`https:api.themoviedb.org/3//trending/tv/week?api_key=${MDBKey}`)
-      .then((res) => res.json())
-      .then((res) => {
-        setTv(res.results)
-      })
+    fetchFromUrl(
+      "https:api.themoviedb.org/3/trending/tv/week?api_key=",
+      setShows
+    )
+  }, [])
+  // Get Trending Shows for the current week
+  useEffect(() => {
+    fetchFromUrl("https:api.themoviedb.org/3/trending/movie/week?api_key=",setMovies)
   }, [])
 
   interface UserData {
@@ -109,16 +105,17 @@ function Discover({ }: Props) {
           Movies
         </Button>
         <SimpleGrid columns={10}>
-          {tv.length &&
+          {shows.length &&
             mode === "tv" &&
-            tv.map((tv, i) => (
+            shows.map((show, i) => (
+              
               <TVButton
-                key={i}
-                name={tv.name}
+                key={show.id}
+                name={show.name}
                 isHidden={false}
-                isSaved={userShows.some((item) => item.name === tv.name)}
-                image={`http://image.tmdb.org/t/p/w500/${tv.poster_path}`}
-                onClick={() => addShowToUser(tv)}
+                isSaved={userShows.some((item) => item.name === show.name)}
+                image={`http://image.tmdb.org/t/p/w500/${show.poster_path}`}
+                onClick={() => addShowToUser(show)}
               />
             ))}
         </SimpleGrid>

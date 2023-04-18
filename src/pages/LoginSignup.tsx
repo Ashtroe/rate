@@ -11,14 +11,17 @@ import {
   Text
 } from "@chakra-ui/react"
 import firebase from 'firebase/compat/app'
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "Firebase/auth"
+import { set, ref, getDatabase } from 'Firebase/database'
 import { useRouter } from "next/router"
 import React, { useState } from "react"
-import { app } from "./../utils/firebaseConfig"
 import styles from "@/styles/Landing.module.css"
+import { app, auth, } from "@/utils/firebaseConfig"
 
 type Props = {}
 
 function LoginSignup({}: Props) {
+
 
   const router = useRouter()
 
@@ -28,11 +31,11 @@ function LoginSignup({}: Props) {
   const [showSignup, setShowSignup] = useState(false)
 
   const handleSignup = () => {
-    app.auth().createUserWithEmailAndPassword(username, password)
+    createUserWithEmailAndPassword(auth,username, password)
       .then((cred) => {
         const userInfo = cred.user
-        firebase.database().ref(`users/${firebase.auth().currentUser?.uid}`).
-        set({
+        const db = getDatabase()
+        set(ref(db, `users/${userInfo.uid}`), {
           uid: userInfo?.uid,
           email: userInfo?.email,
           displayName: userInfo?.displayName,
@@ -49,13 +52,15 @@ function LoginSignup({}: Props) {
       })
   }
   const handleSignIn = () => {
-    
-    app.auth().signInWithEmailAndPassword(username, password)
+    signInWithEmailAndPassword(getAuth(),username, password)
           .then((res) => {
-            if (res.user) {
-              setUsername("")
-              setPassword("")
-              router.push("/Dashboard")
+            
+            if (res.user.uid) {
+              
+              router.replace('/Dashboard')
+            }else{
+              console.log('nah');
+              
             }
           })
           .catch((err) => {
@@ -64,28 +69,6 @@ function LoginSignup({}: Props) {
           })
       
   }
-  // if (showLogin) {
-  //   return (
-  //     <Center flexDir={"column"}>
-  //       <Text>Login</Text>
-  //       <Stack>
-  //         <Input
-  //           placeholder="Email"
-  //           onChange={(e) => setUsername(e.currentTarget.value)}
-  //           role='textbox'
-  //           type='text'
-  //         />
-  //         <Input
-  //           placeholder="Password"
-  //           role="textbox"
-  //           type='password'
-  //           onChange={(e) => setPassword(e.currentTarget.value)}
-  //         />
-  //         <Button onClick={() =>handleSignIn()}>Login</Button>
-  //       </Stack>
-  //     </Center>
-  //   )
-  // }
   if (showSignup) {
     return (
       <Center flexDir={"column"}>
