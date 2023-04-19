@@ -69,6 +69,19 @@ function LoginSignup({}: Props) {
           })
       
   }
+  const demoLogin = () => {
+    signInWithEmailAndPassword(getAuth(),'Demo@Mail.com', 'demodemo')
+          .then((res) => {
+            console.log(res);
+            
+            router.push("/Dashboard")
+          })
+          .catch((err) => {
+            console.log(err)
+            router.reload()
+          })
+      
+  }
   if (showSignup) {
     return (
       <Center flexDir={"column"}>
@@ -98,6 +111,7 @@ function LoginSignup({}: Props) {
       <Image src="" alt="" className={styles.landingBackground} />
       <Text>Welcome to Rate</Text>
       <Stack marginTop={"20%"} width={400}>
+        <Button onClick={() => demoLogin()}>Demo</Button>
         <Button onClick={() => setShowSignup(true)}>signup</Button>
         <Button variant={"outline"} onClick={() => setShowLogin(true)}>
           Login

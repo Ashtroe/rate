@@ -30,9 +30,12 @@ type Props = {}
 
 
 interface Movie {
-    title: string,
-    desc: string,
-  }[]
+  id: number
+  title: string
+  desc: string
+  rating: string
+  poster_path: string
+}[]
 interface TV {
     id:number,
     name: string,
@@ -55,35 +58,34 @@ function Discover({ }: Props) {
   const addMovieToUser = (movie: Movie) => {
     update(child(dbRef, `users/${auth.currentUser?.uid}`), {
       userMovies: [...userMovies, movie]
-    })
-    setUserMovies([...userMovies, movie])
+    }).then(() => setUserMovies([...userMovies, movie]))
+   
   }
   const addShowToUser = (show: TV) => {
     update(child(dbRef, `/users/${auth.currentUser?.uid}`), {
       userShows: [...userShows, show]
-    }).then((res) => console.log(res))
+    })
     setUserShows([...userShows, show])
   }
   //   Get Users current Library
   useEffect(() => {
-    if (auth.currentUser?.uid) {
-      const dbRef = ref(database)
-      get(child(dbRef, `users/${auth.currentUser.uid}`)).then((snap) => {
-        setUserMovies(snap.val().userMovies)
-        setUserShows(snap.val().userShows)
-      })
-    }
+    const dbUserRef = ref(database, `/users/${auth.currentUser?.uid}`)
+    onValue(dbUserRef,(snap) => {
+      setUserMovies(snap.val().userMovies)
+      setUserShows(snap.val().userShows)
+      setLoading(false)
+    })
   }, [])
-  // Get Trending Movies for the current week
+  // Get Trending for the current week
   useEffect(() => {
     fetchFromUrl(
       "https:api.themoviedb.org/3/trending/tv/week?api_key=",
       setShows
     )
-  }, [])
-  // Get Trending Shows for the current week
-  useEffect(() => {
-    fetchFromUrl("https:api.themoviedb.org/3/trending/movie/week?api_key=",setMovies)
+    fetchFromUrl(
+      "https:api.themoviedb.org/3/trending/movie/week?api_key=",
+      setMovies
+    )
   }, [])
 
   interface UserData {
@@ -108,28 +110,38 @@ function Discover({ }: Props) {
           {shows.length &&
             mode === "tv" &&
             shows.map((show, i) => (
-              
               <TVButton
                 key={show.id}
                 name={show.name}
                 isHidden={false}
-                isSaved={userShows.some((item) => item.name === show.name)}
+                isSaved={
+                  userShows &&
+                  userShows.length > 0 &&
+                  userShows.some((item) => item.name == show.name)
+                }
                 image={`http://image.tmdb.org/t/p/w500/${show.poster_path}`}
                 onClick={() => addShowToUser(show)}
               />
             ))}
         </SimpleGrid>
-        {/* {movies.length &&
-      mode === "movie" &&
-      movies.map((movie) => (
-        <Button
-          key={movie.title.replace(/\s/g, "").replace(/:/g, "")}
-          onClick={() => addMovieToUser(movie)}
-          isDisabled={userMovies.some((item) => item.title === movie.title)}
-        >
-          {movie.title}
-        </Button>
-      ))} */}
+        <SimpleGrid columns={10}>
+          {movies.length &&
+            mode === "movie" &&
+            movies.map((movie, i) => (
+              <TVButton
+                key={movie.id}
+                name={movie.title}
+                isHidden={false}
+                isSaved={
+                  userMovies &&
+                  userMovies.length > 0 &&
+                  userMovies.some((item) => item.title == movie.title)
+                }
+                image={`http://image.tmdb.org/t/p/w500/${movie.poster_path}`}
+                onClick={() => addMovieToUser(movie)}
+              />
+            ))}
+        </SimpleGrid>
       </Box>
     )
   }

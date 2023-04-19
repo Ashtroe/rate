@@ -197,7 +197,7 @@ interface IShow {
           {/* Library */}
           <Heading>In your Library</Heading>
           <Flex gap={5}>
-            {mode === "Movies"
+            {userMovies.length && mode === "Movies"
               ? userMovies.map((movie: IMovie, i) => (
                   <TVButton
                     key={i}
@@ -229,10 +229,10 @@ interface IShow {
             style={{
               marginTop: 20,
               paddingTop: 10,
-              borderTopWidth: 1,
+              borderTopWidth: 1
             }}
           >
-           {" What's Trending this week"}
+            {" What's Trending this week"}
           </Heading>
         </GridItem>
       </Grid>
