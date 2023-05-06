@@ -2,6 +2,8 @@ import {
   Box,
   Button,
   Center,
+  HStack,
+  Heading,
   Image,
   Input,
   Modal,
@@ -74,7 +76,7 @@ function LoginSignup({}: Props) {
           .then((res) => {
             console.log(res);
             
-            router.push("/Dashboard")
+            router.replace("/Dashboard")
           })
           .catch((err) => {
             console.log(err)
@@ -107,44 +109,79 @@ function LoginSignup({}: Props) {
     )
   }
   return (
-    <div className={styles.landingContainer}>
-      <Image src="" alt="" className={styles.landingBackground} />
-      <Text>Welcome to Rate</Text>
-      <Stack marginTop={"20%"} width={400}>
-        <Button onClick={() => demoLogin()}>Demo</Button>
-        <Button onClick={() => setShowSignup(true)}>signup</Button>
-        <Button variant={"outline"} onClick={() => setShowLogin(true)}>
-          Login
-        </Button>
-      </Stack>
-      <Modal 
-        isOpen={showLogin} 
-        
-        onClose={() => setShowLogin(false)}>
-          <ModalOverlay/>
-          <ModalContent>
-            <Center flexDir={"column"}>
-              <Text>Login</Text>
-              <Stack>
-                <Input
-                  placeholder="Email"
-                  onChange={(e) => setUsername(e.currentTarget.value)}
-                  role="textbox"
-                  type="text"
-                />
-                <Input
-                  placeholder="Password"
-                  role="textbox"
-                  type="password"
-                  onChange={(e) => setPassword(e.currentTarget.value)}
-                />
-                <Button onClick={() => handleSignIn()}>Login</Button>
-              </Stack>
-            </Center>
-
-          </ModalContent>
+    <Center
+      style={{
+        width: "100vw",
+        height: "100vh",
+        display: "flex",
+        flexDirection: "row",
+        backgroundColor: "#212121",
+        paddingTop: 100,
+        paddingBottom: 100
+      }}
+    >
+      <Box
+        style={{
+          marginRight: 200,
+          height: "100%"
+        }}
+      >
+        <Stack
+          style={{
+            alignItems: "flex-start"
+          }}
+        >
+          <Heading
+            color={'#FFF'}
+            style={{
+              fontSize:72
+            }}
+          >Welcome to Rate!</Heading>
+          <Text>Smaller text</Text>
+          <Stack marginTop={"20%"} width={400}>
+            <Button onClick={() => demoLogin()}>Demo</Button>
+            <Button onClick={() => setShowSignup(true)}>signup</Button>
+            <Button variant={"outline"} onClick={() => setShowLogin(true)}>
+              Login
+            </Button>
+          </Stack>
+        </Stack>
+      </Box>
+      <Image
+        src=""
+        alt=""
+        style={{
+          height: "100%",
+          minWidth: 400,
+          borderRadius:10,
+          borderWidth:0,
+          backgroundColor:"firebrick"
+        }}
+      />
+      <Modal isOpen={showLogin} onClose={() => setShowLogin(false)}>
+        <ModalOverlay />
+        <ModalContent>
+          <Center flexDir={"column"}>
+            <Text>Login</Text>
+            <Stack>
+              <Input
+                placeholder="Email"
+                onChange={(e) => setUsername(e.currentTarget.value)}
+                role="textbox"
+                type="text"
+              />
+              <Input
+                placeholder="Password"
+                role="textbox"
+                type="password"
+                onChange={(e) => setPassword(e.currentTarget.value)}
+              />
+              <Button onClick={() => handleSignIn()}>Login</Button>
+            </Stack>
+          </Center>
+        </ModalContent>
       </Modal>
-    </div>
+    </Center>
   )
 }
 

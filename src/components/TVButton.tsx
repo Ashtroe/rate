@@ -11,7 +11,10 @@ export function TVButton(props: TVProps) {
     <Box
       key={props.name.replace(/\s/g, "").replace(/:/g, "")}
       style={{
-        width: 200,
+        maxWidth: window.screen.width/3,
+        minHeight:200,
+        flexShrink:0,
+        marginRight:20,
         flexDirection: "row",
         position: "relative",
         justifyContent: "center"
@@ -24,7 +27,7 @@ export function TVButton(props: TVProps) {
       />
       <Button
         onClick={() => props.onClick()}
-        isDisabled={props.isSaved}
+        // isDisabled={props.isSaved}
         style={{
           position: "absolute",
           bottom: 10,

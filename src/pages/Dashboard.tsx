@@ -18,7 +18,15 @@ import {
   GridItem,
   Heading,
   Flex,
-  Divider
+  Divider,
+  Modal,
+  ModalBody,
+  ModalOverlay,
+  ModalContent,
+  Image,
+  useBreakpointValue,
+  IconButton,
+  Input
 } from "@chakra-ui/react"
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -27,30 +35,49 @@ import { TVButton } from '@/components/TVButton'
 import { getDatabase, ref, set, get, onValue } from 'firebase/database'
 import { child } from '@firebase/database'
 
-const MDBKey = process.env.MBKey
-
 type Props = {
     uid: string,
     
 }
+type Library = "Movies" | "Shows" | "Books" | "Games"
+
+const MDBKey = process.env.MBKey
+const libraries = ["Movies", "Shows", "Books", "Games"]
+
 
 export default function Dashboard({}: Props) {
 
   const database = getDatabase()
-
-  const { isOpen, onOpen, onClose } = useDisclosure()
   const btnRef = useRef()
   const router = useRouter()
-  const [mode, setMode] = useState<"Movies" | "Shows" | "Books" | "Games">("Movies")
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const [mode, setMode] = useState("Movies")
   const [movies, setMovies] = useState<IMovie[]>([])
   const [userMovies, setUserMovies] = useState<IMovie[]>([])
   const [userShows, setUserShows] = useState<IShow[]>([])
+  const [viewMovie, setViewMovie] =useState(false)
+  const [selectedMovie, setSelectedMovie] =useState<IMovie>()
+  const [width, setWidth] = useState<number>(window.innerWidth)
+
+  const isMobile = width <= 768
+  
+  function handleWindowSizeChange() {
+    setWidth(window.innerWidth)
+  }
   useEffect(() => {
-    auth.currentUser ? router.replace("/LoginSignup") : null
+    window.addEventListener("resize", handleWindowSizeChange)
+    return () => {
+      window.removeEventListener("resize", handleWindowSizeChange)
+    }
+  }, [])
+
+  
+  useEffect(() => {
+    !auth.currentUser ? router.replace("/LoginSignup") : null
   }, [])
 interface IMovie {
   title: string
-  desc: string
+  overview: string
   rating: string
   poster_path: string
 }
@@ -82,8 +109,6 @@ interface IShow {
         setUserShows(snap.val().userShows)
       }
       )
-    
-    
     }
   }, [])
 
@@ -97,106 +122,239 @@ interface IShow {
       })
   }, [])
 
-  
+  const FullLayout = `"header header"
+                        "nav main"
+                        "nav main"`
+  const MobileLayout = `"header header"
+                        "main main"
+                        "main main"`
 
   return (
     <Box
       style={{
-        flexDirection: "row"
-        // width: window.screen.width
+        height: "100vh",
+        width: "100vw",
+        flexDirection: "row",
+        backgroundColor: "#212121"
       }}
     >
       <Grid
-        templateAreas={`"header header"
-                        "nav main"
-                        "nav footer"`}
-        gridTemplateColumns={"250px 1fr"}
+        templateAreas={[MobileLayout, FullLayout]}
+        style={{
+          backgroundColor: "#212121",
+          width: "100%"
+        }}
       >
-        <GridItem area={"nav"}>
-          <Box
-            style={{
-              paddingLeft: 10,
-              paddingTop: 10
-            }}
-          >
-            <Stack>
-              <Link href={"/"}>Home</Link>
-              <Link href={"/Discover"}>Discover</Link>
-              <Link href={""}>Account</Link>
-            </Stack>
-            <Stack
+        <GridItem
+          area={isMobile ? "header" : "nav"}
+          backgroundColor={"blackAlpha.200"}
+        >
+          {isMobile ? (
+            <>
+              <IconButton
+                aria-label="menu"
+                ref={btnRef.current}
+                onClick={onOpen}
+                icon={<Image src="" />}
+                style={{
+                  marginLeft: 10,
+                  marginTop: 10
+                }}
+              >
+                Open
+              </IconButton>
+              <Drawer
+                isOpen={isOpen}
+                placement="left"
+                onClose={onClose}
+                finalFocusRef={btnRef.current}
+              >
+                <DrawerOverlay />
+                <DrawerContent
+                  style={{
+                    backgroundColor: "#212121"
+                  }}
+                >
+                  <DrawerCloseButton />
+
+                  <DrawerBody>
+                    <Stack>
+                      <Link
+                        href={"/"}
+                        style={{
+                          color: "#FFF"
+                        }}
+                      >
+                        Home
+                      </Link>
+                      <Link
+                        href={"/Discover"}
+                        style={{
+                          color: "#FFF"
+                        }}
+                      >
+                        Discover
+                      </Link>
+                      <Link
+                        href={""}
+                        style={{
+                          color: "#FFF"
+                        }}
+                      >
+                        Account
+                      </Link>
+                    </Stack>
+                    <Divider
+                      style={{
+                        marginTop: 20
+                      }}
+                    />
+                    <Stack
+                      style={{
+                        marginTop: 20
+                      }}
+                    >
+                      <Heading size={"md"}>Library</Heading>
+                      {libraries.map((option) => (
+                        <Button
+                          isActive={mode === option}
+                          style={{
+                            justifyContent: "start",
+                            paddingLeft: 0,
+                            paddingBottom: 0
+                          }}
+                          onClick={() => {
+                            setMode(option)
+                            onClose()
+                          }}
+                        >
+                          {option}
+                        </Button>
+                      ))}
+                    </Stack>
+                  </DrawerBody>
+
+                  <DrawerFooter></DrawerFooter>
+                </DrawerContent>
+              </Drawer>
+            </>
+          ) : (
+            <Box
               style={{
-                marginTop: 20
+                padding: 10
               }}
             >
-              <Heading size={"md"}>Library</Heading>
-              <Button
-                variant={"ghost"}
-                isActive={mode === "Movies"}
+              <Stack>
+                <Link
+                  href={"/"}
+                  style={{
+                    color: "#FFF"
+                  }}
+                >
+                  Home
+                </Link>
+                <Link
+                  href={"/Discover"}
+                  style={{
+                    color: "#FFF"
+                  }}
+                >
+                  Discover
+                </Link>
+                <Link
+                  href={""}
+                  style={{
+                    color: "#FFF"
+                  }}
+                >
+                  Account
+                </Link>
+              </Stack>
+              <Divider
                 style={{
-                  justifyContent: "start",
-                  paddingLeft: 0,
-                  paddingBottom: 0
+                  marginTop: 20
                 }}
-                onClick={() => setMode("Movies")}
-              >
-                Movies
-              </Button>
-              <Button
-                variant={"ghost"}
-                isActive={mode === "Shows"}
+              />
+              <Stack
                 style={{
-                  justifyContent: "start",
-                  paddingLeft: 0,
-                  paddingBottom: 0
+                  marginTop: 20
                 }}
-                onClick={() => setMode("Shows")}
               >
-                Shows
-              </Button>
-              <Button
-                isDisabled
-                variant={"ghost"}
-                isActive={mode === "Books"}
-                style={{
-                  justifyContent: "start",
-                  paddingLeft: 0,
-                  paddingBottom: 0
-                }}
-                onClick={() => setMode("Books")}
-              >
-                Books (Coming Soon)
-              </Button>
-              <Button
-                isDisabled
-                variant={"ghost"}
-                isActive={mode === "Games"}
-                style={{
-                  justifyContent: "start",
-                  paddingLeft: 0,
-                  paddingBottom: 0
-                }}
-                onClick={() => setMode("Games")}
-              >
-                Games (Coming Soon)
-              </Button>
-            </Stack>
-          </Box>
+                <Heading size={"md"}>Library</Heading>
+                <Button
+                  isActive={mode === "Movies"}
+                  style={{
+                    justifyContent: "start",
+                    paddingLeft: 0,
+                    paddingBottom: 0
+                  }}
+                  onClick={() => setMode("Movies")}
+                >
+                  Movies
+                </Button>
+                <Button
+                  isActive={mode === "Shows"}
+                  style={{
+                    justifyContent: "start",
+                    paddingLeft: 0,
+                    paddingBottom: 0
+                  }}
+                  onClick={() => setMode("Shows")}
+                >
+                  Shows
+                </Button>
+                <Button
+                  isDisabled
+                  variant={"ghost"}
+                  isActive={mode === "Books"}
+                  style={{
+                    justifyContent: "start",
+                    paddingLeft: 0,
+                    paddingBottom: 0
+                  }}
+                  onClick={() => setMode("Books")}
+                >
+                  Books (Coming Soon)
+                </Button>
+                <Button
+                  isDisabled
+                  variant={"ghost"}
+                  isActive={mode === "Games"}
+                  style={{
+                    justifyContent: "start",
+                    paddingLeft: 0,
+                    paddingBottom: 0
+                  }}
+                  onClick={() => setMode("Games")}
+                >
+                  Games (Coming Soon)
+                </Button>
+              </Stack>
+            </Box>
+          )}
         </GridItem>
         <GridItem
           area={"main"}
           backgroundColor={"blackAlpha.200"}
           style={{
-            paddingLeft: 30,
+            paddingLeft: isMobile ? 15 : 30,
+            paddingRight: isMobile ? 15 : 30,
             paddingBottom: 30
           }}
         >
           <Center>
-            <Text>Your {mode}</Text>
+            <Heading>Your {mode}</Heading>
           </Center>
           {/* Library */}
           <Heading>In your Library</Heading>
-          <Flex gap={5}>
+          <Box
+            style={{
+              width,
+              display: "flex",
+              flexDirection: "row",
+              overflowX: "scroll"
+            }}
+          >
             {userMovies.length && mode === "Movies"
               ? userMovies.map((movie: IMovie, i) => (
                   <TVButton
@@ -207,7 +365,10 @@ interface IShow {
                       (item) => item.title === movie.title
                     )}
                     image={`http://image.tmdb.org/t/p/w500/${movie.poster_path}`}
-                    onClick={() => null}
+                    onClick={() => {
+                      setSelectedMovie(movie)
+                      setViewMovie(true)
+                    }}
                   />
                 ))
               : null}
@@ -223,7 +384,7 @@ interface IShow {
                   />
                 ))
               : null}
-          </Flex>
+          </Box>
           {/* Trending */}
           <Heading
             style={{
@@ -234,8 +395,84 @@ interface IShow {
           >
             {" What's Trending this week"}
           </Heading>
+          <Box
+            style={{
+              width,
+              display: "flex",
+              flexDirection: "row",
+              overflowX: "scroll"
+            }}
+          >
+            {movies.length && mode === "Movies"
+              ? movies.map((movie: IMovie, i) =>
+                  !userMovies.some((item) => item.title === movie.title) ? (
+                    <TVButton
+                      key={i}
+                      name={movie.title}
+                      isHidden={false}
+                      isSaved={userMovies.some(
+                        (item) => item.title === movie.title
+                      )}
+                      image={`http://image.tmdb.org/t/p/w500/${movie.poster_path}`}
+                      onClick={() => {
+                        console.log(movie)
+
+                        setSelectedMovie(movie)
+                        setViewMovie(true)
+                      }}
+                    />
+                  ) : null
+                )
+              : null}
+          </Box>
         </GridItem>
       </Grid>
+
+      {/* Movie info Modal */}
+      <Modal
+        isOpen={viewMovie && selectedMovie !== null}
+        onClose={() => setViewMovie(false)}
+        size={isMobile ? "sm" : "2xl"}
+      >
+        <ModalOverlay  />
+        <ModalContent>
+          <ModalBody>
+            <Heading color={"red.600"} style={{ textAlign: isMobile ? "center" : 'left'}}>{selectedMovie?.title}</Heading>
+            <Box
+              style={{
+                display: "flex",
+                flexDirection: isMobile ? "column" :  "row",
+                marginTop: 20,
+                padding:20,
+              }}
+            >
+              <Image
+                src={`http://image.tmdb.org/t/p/w500/${selectedMovie?.poster_path}`}
+                style={{
+                  height: isMobile ? 200 :  400,
+                  borderRadius: 10,
+                  marginRight: 5,
+                  flex:0
+                }}
+              />
+
+              <Text
+                color={"blackAlpha.800"}
+                style={{
+                  marginTop: isMobile ? 20 : 0,
+                }}
+              >
+                {selectedMovie?.overview}
+              </Text>
+              <Button>
+                {userMovies.some(
+                      (item) => item.title === selectedMovie?.title
+                    ) ? "Added" : "Add"}
+              </Button>
+            </Box>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </Box>
   )
 }

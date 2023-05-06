@@ -32,14 +32,14 @@ type Props = {}
 interface Movie {
   id: number
   title: string
-  desc: string
+  overview: string
   rating: string
   poster_path: string
 }[]
 interface TV {
     id:number,
     name: string,
-    desc: string,
+    overview: string,
     rating: string,
     poster_path: string,
   }
